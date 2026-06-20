@@ -42,13 +42,26 @@ Core math lives in [programs/amm/src/math.rs](programs/amm/src/math.rs).
 - TypeScript tests via `ts-mocha` + `chai` ([tests/ammverse.ts](tests/ammverse.ts), [tests/launchpad.ts](tests/launchpad.ts))
 - `@solana/spl-token` for token account/mint helpers
 
-## Development
+![alt text](image.png)
 
-```bash
-yarn install
-anchor build
-anchor test
-```
+![alt text](image-1.png)
+
+godwin@Godwin:/mnt/c/Users/godwi/ammverse$ anchor deploy --provider.cluster devnet
+Deploying cluster: https://api.devnet.solana.com
+Upgrade authority: ./wallet/id.json
+Deploying program "amm"...
+Program path: /mnt/c/Users/godwi/ammverse/target/deploy/amm.so...
+Program Id: 43DnDGUdYZSvcCWH2Gdbof6FKTefRwRFJDqUcYH2hDY6
+
+Signature: 2DWXrpRsJ7Yn6R3ATJYvZEXgzaNxvxGs1H51pUw7YBTFUVb35roNafvGcRmyKFVqSebGfxfX82peY3ydX6QeNzfo
+
+Deploying program "launchpad"...
+Program path: /mnt/c/Users/godwi/ammverse/target/deploy/launchpad.so...
+Program Id: MdR31uPycMD3fYXsAUKj7T9vpVx5rtSwyJmHwVNNneT
+
+Signature: 5iHD3iiD7e4E1yqPtLX4GahzHc2d5tbiCbXfJZvfCBmEnFDHr1PBkzwCVSop3BQ6m4dhvAXwa4y7ELdFTwAFEqYs
+
+Deploy success
 
 Tests run against a local validator (`cluster = "localnet"` in [Anchor.toml](Anchor.toml)) using the wallet at `./wallet/id.json`.
 
