@@ -61,10 +61,4 @@ Program Id: MdR31uPycMD3fYXsAUKj7T9vpVx5rtSwyJmHwVNNneT
 
 Signature: 5iHD3iiD7e4E1yqPtLX4GahzHc2d5tbiCbXfJZvfCBmEnFDHr1PBkzwCVSop3BQ6m4dhvAXwa4y7ELdFTwAFEqYs
 
-Deploy success
-
-Tests run against a local validator (`cluster = "localnet"` in [Anchor.toml](Anchor.toml)) using the wallet at `./wallet/id.json`.
-
-## Frontend
-
 [frontend/](frontend/) is a Next.js dApp for both programs (wallet connect, launch/pool creation, buy/sell, swap, liquidity, migration). See [frontend/README.md](frontend/README.md) for setup.
