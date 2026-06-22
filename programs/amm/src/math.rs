@@ -3,6 +3,16 @@ use constant_product_curve::ConstantProduct;
 
 use crate::errors::AmmError;
 
+pub const PRICE_SCALE: u128 = 1_000_000_000;
+
+// Price of A denominated in B, scaled by PRICE_SCALE.
+pub fn spot_price_scaled(reserve_a: u64, reserve_b: u64) -> Result<u128> {
+    (reserve_b as u128)
+        .checked_mul(PRICE_SCALE)
+        .and_then(|v| v.checked_div(reserve_a as u128))
+        .ok_or_else(|| error!(AmmError::MathOverflow))
+}
+
 pub fn initial_lp_tokens(amount_a: u64, amount_b: u64) -> Result<u64> {
     let product = (amount_a as u128)
         .checked_mul(amount_b as u128)

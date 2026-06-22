@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
 pub mod errors;
+pub mod events;
 pub mod helpers;
 pub mod instructions;
 pub mod math;
@@ -11,6 +12,10 @@ use instructions::*;
 use state::*;
 
 declare_id!("MdR31uPycMD3fYXsAUKj7T9vpVx5rtSwyJmHwVNNneT");
+
+// Only this wallet may ever initialize the global config, so a stranger
+// can't front-run setup and permanently claim the admin role first.
+pub const ADMIN_PUBKEY: Pubkey = pubkey!("7wmRRK7KypcW2anQKimiECM3adRRUpw9Pi2myDmV9DME");
 
 #[program]
 pub mod launchpad {

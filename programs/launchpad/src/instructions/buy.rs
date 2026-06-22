@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
 
 use crate::errors::LaunchpadError;
+use crate::events::TradeEvent;
 use crate::helpers::{transfer_tokens, transfer_from_curve};
 use crate::state::{BondingCurve, GlobalConfig};
 use crate::math;
@@ -93,5 +94,21 @@ pub fn handler(ctx: Context<Buy>, quote_amount_in: u64, min_token_out: u64) -> R
         .ok_or(error!(LaunchpadError::MathOverflow))?;
     curve.tokens_sold = curve.tokens_sold.checked_add(token_out as u64)
         .ok_or(error!(LaunchpadError::MathOverflow))?;
+
+    let price_scaled = math::spot_price_scaled(
+        curve.real_token_reserves as u128,
+        curve.real_quote_reserves as u128,
+        curve.virtual_token_reserves,
+        curve.virtual_quote_reserves,
+    )
+    .map_err(|e| error!(e))?;
+    emit!(TradeEvent {
+        curve: curve.key(),
+        is_buy: true,
+        quote_amount: quote_amount_in,
+        token_amount: token_out as u64,
+        price_scaled,
+        timestamp: Clock::get()?.unix_timestamp,
+    });
     Ok(())
 }

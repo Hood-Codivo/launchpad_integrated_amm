@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount};
 
 use crate::errors::AmmError;
+use crate::events::SwapEvent;
 use crate::helpers::{transfer_from_pool, transfer_tokens};
 use crate::state::Pool;
 use crate::math;
@@ -89,5 +90,15 @@ pub fn handler(
         pool.reserve_a = pool.reserve_a.checked_sub(amount_out)
             .ok_or(error!(AmmError::MathOverflow))?;
     }
+
+    let price_scaled = math::spot_price_scaled(pool.reserve_a, pool.reserve_b)?;
+    emit!(SwapEvent {
+        pool: pool.key(),
+        a_to_b,
+        amount_in,
+        amount_out,
+        price_scaled,
+        timestamp: Clock::get()?.unix_timestamp,
+    });
     Ok(())
 }

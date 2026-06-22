@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
 pub mod errors;
+pub mod events;
 pub mod helpers;
 pub mod instructions;
 pub mod math;
@@ -9,6 +10,10 @@ pub mod state;
 use instructions::*;
 
 declare_id!("43DnDGUdYZSvcCWH2Gdbof6FKTefRwRFJDqUcYH2hDY6");
+
+// Only this wallet may ever initialize the AMM config, so a stranger can't
+// front-run setup and permanently claim the admin role first.
+pub const ADMIN_PUBKEY: Pubkey = pubkey!("7wmRRK7KypcW2anQKimiECM3adRRUpw9Pi2myDmV9DME");
 
 #[program]
 pub mod ammverse {

@@ -12,4 +12,6 @@ pub enum AmmError {
     SlippageExceeded,
     #[msg("Math overflow")]
     MathOverflow,
+    #[msg("Only the designated admin wallet can perform this action")]
+    Unauthorized,
 }

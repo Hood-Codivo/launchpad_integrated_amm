@@ -2,10 +2,11 @@ use anchor_lang::prelude::*;
 
 use crate::errors::AmmError;
 use crate::state::AmmConfig;
+use crate::ADMIN_PUBKEY;
 
 #[derive(Accounts)]
 pub struct InitializeAmmConfig<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = admin.key() == ADMIN_PUBKEY @ AmmError::Unauthorized)]
     pub admin: Signer<'info>,
     /// CHECK: Fee recipient can be any treasury wallet.
     pub fee_recipient: UncheckedAccount<'info>,
