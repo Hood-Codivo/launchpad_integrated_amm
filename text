@@ -1,0 +1,13 @@
+now whats the diffrence between wrap sol and sol, why do we have use wrap sol, platform like cyreanAI when buying you just use sol, and in the wllet see any wrap sol
+
+Good question — here's the real distinction:
+
+Native SOL is tracked directly by Solana's System Program as a plain lamport balance on your account. It's the "default" balance every wallet shows.
+
+Wrapped SOL (wSOL) is the same SOL, but deposited into a special SPL token account so that programs which only know how to handle generic SPL tokens (like our bonding curve, which is written to support any quote token, not just SOL) can treat SOL exactly like any other token. It's a real token account with a real balance — just backed 1:1 by SOL you deposited into it.
+
+Why our platform needs it: our buy/sell instructions are generic — they move tokens via the SPL Token Program's transfer instruction. That instruction can't touch your native SOL balance at all; it only knows how to move balances inside token accounts. So if the quote asset is SOL, it has to be wSOL for the instruction to work.
+
+Why CyreneAI's popup doesn't show a "Wrapped SOL" line: they're very likely doing the exact same wrap-then-spend-then-close pattern under the hood (this is the standard pattern, pump.fun does it too) — but they close the temporary wSOL account at the end of the same transaction, recovering it back to native SOL. Since the wSOL balance starts at 0 and ends at 0 within that one transaction, wallets like Phantom collapse it down to a single net "-0.1 SOL" line instead of showing the intermediate wrap. We currently leave the wSOL account open after the buy (so it's reusable next time), which is why your wallet shows the wrap as its own visible line — functionally identical, just a more "visible" UX.
+
+I can change our flow to close the wSOL account at the end of the buy transaction (when it's safe to — i.e., only when we know the balance will land exactly back at zero) so your wallet popup looks like pump.fun's clean "-0.1 SOL" instead of showing the wrap step. Want me to check the on-chain buy instruction to confirm it's safe to do that, and add it?

@@ -49,8 +49,8 @@ pub mod launchpad {
         sell::handler(ctx, token_amount_in, min_quote_out)
     }
 
-    pub fn migrate_to_amm(ctx: Context<MigrateToAmm>, trade_fee_bps: u16) -> Result<()> {
-        migrate_to_amm::handler(ctx, trade_fee_bps)
+    pub fn migrate_to_amm(ctx: Context<MigrateToAmm>) -> Result<()> {
+        migrate_to_amm::handler(ctx)
     }
 
     pub fn finalize_migration(ctx: Context<FinalizeMigration>) -> Result<()> {

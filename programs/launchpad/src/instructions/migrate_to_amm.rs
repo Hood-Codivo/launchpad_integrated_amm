@@ -32,7 +32,7 @@ pub struct MigrateToAmm<'info> {
 }
 
 
-pub fn handler(ctx: Context<MigrateToAmm>, trade_fee_bps: u16) -> Result<()> {
+pub fn handler(ctx: Context<MigrateToAmm>) -> Result<()> {
     require!(!ctx.accounts.curve.migrated, LaunchpadError::AlreadyMigrated);
     require!(!ctx.accounts.curve.migrating, LaunchpadError::MigrationInProgress);
 
@@ -72,7 +72,7 @@ pub fn handler(ctx: Context<MigrateToAmm>, trade_fee_bps: u16) -> Result<()> {
                 rent: ctx.accounts.rent.to_account_info(),
             },
         ),
-        trade_fee_bps,
+        ctx.accounts.config.migration_fee_bps,
     )?;
 
     let curve = &mut ctx.accounts.curve;
