@@ -39,22 +39,29 @@ pub fn handler (
 
     let pool = &ctx.accounts.pool;
 
-    let lp_out = math::lp_tokens_for_deposit(
+    let (amount_a, amount_b) = math::optimal_deposit_amounts(
         amount_a_desired,
         amount_b_desired,
+        amount_a_min,
+        amount_b_min,
+        pool.reserve_a,
+        pool.reserve_b,
+    )?;
+
+    let lp_out = math::lp_tokens_for_deposit(
+        amount_a,
+        amount_b,
         pool.reserve_a,
         pool.reserve_b,
         ctx.accounts.lp_mint.supply,
     )?;
-
-    require!(lp_out >= amount_a_min.min(amount_b_min), AmmError::SlippageExceeded);
 
     transfer_tokens(
         ctx.accounts.depositor_token_a.to_account_info(),
         ctx.accounts.vault_a.to_account_info(),
         ctx.accounts.depositor.to_account_info(),
         ctx.accounts.token_program.to_account_info(),
-        amount_a_desired,
+        amount_a,
     )?;
 
     transfer_tokens(
@@ -62,7 +69,7 @@ pub fn handler (
         ctx.accounts.vault_b.to_account_info(),
         ctx.accounts.depositor.to_account_info(),
         ctx.accounts.token_program.to_account_info(),
-        amount_b_desired,
+        amount_b,
     )?;
 
     mint_lp_from_pool(
@@ -75,9 +82,9 @@ pub fn handler (
 
 
     let pool = &mut ctx.accounts.pool;
-    pool.reserve_a = pool.reserve_a.checked_add(amount_a_desired)
+    pool.reserve_a = pool.reserve_a.checked_add(amount_a)
         .ok_or(error!(AmmError::MathOverflow))?;
-    pool.reserve_b = pool.reserve_b.checked_add(amount_b_desired)
+    pool.reserve_b = pool.reserve_b.checked_add(amount_b)
         .ok_or(error!(AmmError::MathOverflow))?;
     Ok(())
 }

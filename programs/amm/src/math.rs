@@ -34,6 +34,47 @@ fn isqrt(n: u128) -> u128 {
     x
 }
 
+// Clamps a desired deposit down to the pool's current ratio, refunding the
+// excess on the over-supplied side instead of taking it for no LP credit.
+// Falls back to the desired amounts unchanged if the pool has no reserves
+// yet (e.g. called before the first deposit ever lands).
+pub fn optimal_deposit_amounts(
+    amount_a_desired: u64,
+    amount_b_desired: u64,
+    amount_a_min: u64,
+    amount_b_min: u64,
+    reserve_a: u64,
+    reserve_b: u64,
+) -> Result<(u64, u64)> {
+    if reserve_a == 0 || reserve_b == 0 {
+        return Ok((amount_a_desired, amount_b_desired));
+    }
+
+    let amount_b_optimal = u64::try_from(
+        (amount_a_desired as u128)
+            .checked_mul(reserve_b as u128)
+            .and_then(|v| v.checked_div(reserve_a as u128))
+            .ok_or(error!(AmmError::MathOverflow))?,
+    )
+    .map_err(|_| error!(AmmError::MathOverflow))?;
+
+    if amount_b_optimal <= amount_b_desired {
+        require!(amount_b_optimal >= amount_b_min, AmmError::SlippageExceeded);
+        Ok((amount_a_desired, amount_b_optimal))
+    } else {
+        let amount_a_optimal = u64::try_from(
+            (amount_b_desired as u128)
+                .checked_mul(reserve_a as u128)
+                .and_then(|v| v.checked_div(reserve_b as u128))
+                .ok_or(error!(AmmError::MathOverflow))?,
+        )
+        .map_err(|_| error!(AmmError::MathOverflow))?;
+        require!(amount_a_optimal <= amount_a_desired, AmmError::InvalidLiquidity);
+        require!(amount_a_optimal >= amount_a_min, AmmError::SlippageExceeded);
+        Ok((amount_a_optimal, amount_b_desired))
+    }
+}
+
 pub fn lp_tokens_for_deposit(
     amount_a: u64,
     amount_b: u64,
