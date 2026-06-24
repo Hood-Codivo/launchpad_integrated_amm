@@ -14,4 +14,6 @@ pub enum AmmError {
     MathOverflow,
     #[msg("Only the designated admin wallet can perform this action")]
     Unauthorized,
+    #[msg("Fee recipient token account does not belong to the configured fee recipient")]
+    InvalidFeeRecipient,
 }

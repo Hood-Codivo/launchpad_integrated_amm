@@ -4,6 +4,17 @@ use constant_product_curve::ConstantProduct;
 use crate::errors::AmmError;
 
 pub const PRICE_SCALE: u128 = 1_000_000_000;
+const BPS_DENOMINATOR: u128 = 10_000;
+
+pub fn fee_amount(amount: u64, fee_bps: u16) -> Result<u64> {
+    u64::try_from(
+        (amount as u128)
+            .checked_mul(fee_bps as u128)
+            .and_then(|v| v.checked_div(BPS_DENOMINATOR))
+            .ok_or_else(|| error!(AmmError::MathOverflow))?,
+    )
+    .map_err(|_| error!(AmmError::MathOverflow))
+}
 
 // Price of A denominated in B, scaled by PRICE_SCALE.
 pub fn spot_price_scaled(reserve_a: u64, reserve_b: u64) -> Result<u128> {
